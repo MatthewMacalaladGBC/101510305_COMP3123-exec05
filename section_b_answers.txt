@@ -1,0 +1,43 @@
+Section B: Short Answer Questions
+
+1. Explain the Purpose of express.Router() in the Code Above.
+    - Why is express.Router() used in Express.js applications, and how does it benefit the code structure?
+
+In the completed code, express.Router() acts as a modular route handler for the main express app.
+It allows us to handle all routes related to users in a single file outside of the index.js file.
+This improves the structure and readability in the code by grouping all related routes.
+In the case of this specific application, we prefix all calls in the users.js file with api/v1/users
+automatically, rather than needing to add the full route to each call. 
+If we were to create another route handler, we could assign it its own unique route prefix. This modularity
+and reusability is what makes express.Router() useful in writing clean Express.js applications.
+
+
+2. Error Handling in Express.js
+    - How would you implement error handling in the Express routes to ensure that any issues (such as file not found or server errors) 
+      are appropriately handled? Provide an example.
+
+To ensure that any issues are properly handled, we could have it so all errors are handled and thrown to an error handling middleware.
+To do so, we need to have each route definition contain the "next" parameter alongside "req" and "res". That way, any possible causes
+of error (like file not found or server errors) can throw an error to be passed to said middleware via next(err).
+For instance, in this application we have an error handling middleware:
+
+    app.use((err, req, res, next) => {
+    res.status(500).send("Server Error")
+    });
+
+The four parameters in the callback are what define it as an error handler (namely, err). When an error is passed via a route,
+the middlware will automatically pass the defined error message.
+In our application, the users.js route handler has a "profile" route defined that reads a file:
+
+    routerUser.get("/profile", (req, res, next) => {
+        fs.readFile(path.join(__dirname, "../user.json"), "utf8", (err, data) => {
+            if (err) {
+                console.error(err);
+                return next(err);
+            }
+            res.json(JSON.parse(data));
+        });
+    });
+
+In the readFile call, it checks for an error (err in callback), and if it exists, we see that it stops the call and passes
+the error via next(err), which in turn would call the error-handler.

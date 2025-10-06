@@ -44,16 +44,37 @@ routerUser.get("/test-error", (req, res, next) => {
         message: "Password is invalid"
     }
 */
-routerUser.post('/login', (req, res) => {
+routerUser.post('/login', (req, res, next) => {
     const { username, password } = req.body;
+
+    fs.readFile(path.join(__dirname, "../useras.json"), "utf8", (err, data) => {
+        if (err) {
+            console.error(err);
+            return next(err);
+        };
+
+        const user = JSON.parse(data);
+
+        if (username !== user.username) {
+            return res.json({ status: false, message: "User Name is invalid." })
+        };
+        if (password !== user.password){
+            return res.json({ status: false, message: "Password is invalid." })
+        };
+
+        res.json({ status: true, message: "User is valid."})
+    });
 });
 
 /*
 - Modify /logout route to accept username as parameter and display message
     in HTML format like <b>${username} successfully logout.<b>
 */
-routerUser.get('/logout', (req,res) => {
-  res.send('This is logout router');
+routerUser.get('/logout/:username', (req, res) => {
+    const username = req.params.username; 
+    // Need to append .username to avoid getting the entire json object.
+    // Using just req.params sets username to { username: "name_value"} instead of just "name_value"
+    res.send(`<b>${username} successfully logged out.<b>`)
 });
 
 module.exports = routerUser;
