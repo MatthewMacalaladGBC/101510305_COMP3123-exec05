@@ -47,7 +47,7 @@ routerUser.get("/test-error", (req, res, next) => {
 routerUser.post('/login', (req, res, next) => {
     const { username, password } = req.body;
 
-    fs.readFile(path.join(__dirname, "../useras.json"), "utf8", (err, data) => {
+    fs.readFile(path.join(__dirname, "../user.json"), "utf8", (err, data) => {
         if (err) {
             console.error(err);
             return next(err);
